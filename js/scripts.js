@@ -38,7 +38,9 @@ async function fetchEmployees(url) {
  */
 function generateCards(data) {
     data.map(employee => {
+        // Take this step to fill global employees array
         employeesArray.push(employee);
+
         employeesDiv.innerHTML += `
             <div class="card show" id="${employee.id.value}">
                 <div class="card-img-container">
@@ -53,9 +55,19 @@ function generateCards(data) {
     });
 }
 
-
+/**
+ * Show modal with 'employee' selected
+ * @param {Object} employee employee's object of card clicked
+ */
 function popModal(employee) {
+    /**
+     * Event Handler for Close modal, show prev or next employee's modal
+     * @param {HTMLElement} button <button> element clicked
+     * @param {Object} employee employee's object of card clicked
+     */
     function modalEvents(button, employee) {
+        // Cards array that have show class in order to adapt functionality for next/prev modal button
+        //  in case that a search was realized
         const cards = [...document.querySelectorAll('.card.show')];
         const card = document.getElementById(employee.id.value);
         const action = button.id.split('-')[1];
@@ -65,7 +77,6 @@ function popModal(employee) {
                 document.querySelector('div .modal-container').remove();
             },
             prev: () => {
-
                 if (cards.length > 1) {
                     const index = cards.indexOf(card);
                     if (index > 0) {
@@ -74,7 +85,6 @@ function popModal(employee) {
                             const prevEmployee = employeesArray.find(employee => employee.id.value === prevEmployeeId);
                             document.querySelector('div .modal-container').remove();
                             popModal(prevEmployee);
-                        
                     }
                 }
             },
@@ -124,27 +134,42 @@ function popModal(employee) {
     });
 }
 
+/**
+ * Search for employee's cards where employee's name includes the 'input', 
+ * hidding those that doesnt apply
+ * @param {String} input Value from search input 
+ */
 function search(input) {
+    // Get all cards in an Array to better management
     const employeesCards = [...document.querySelectorAll('div .card')];
 
     employeesCards.forEach( card => {
         const name = card.querySelector('#name').textContent.toLowerCase();
+        // Check if input it's included in name employee
         if (name.includes(input.toLowerCase())) {
+            // Show card adding '.show' class
             card.classList.remove('hide');
             card.classList.add('show');
         } else {
+            // Hide card adding '.hide' class
             card.classList.remove('show');
             card.classList.add('hide');
         }
     });
 }
 
+// Creating search form in '.search-container' div
 document.querySelector('div .search-container').innerHTML = `
     <form action="#" method="get">
     <input type="search" id="search-input" name="search-input" class="search-input" placeholder="Search...">
     <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
     </form>`;
 
+/**
+ * Event listener for submit form 
+ * preventing default action recharging page 
+ * and calling search method with search input value
+ */
 document.querySelector('form').addEventListener('submit', (e) => {
     e.preventDefault();
     search(e.target.elements['search-input'].value);
@@ -153,6 +178,7 @@ document.querySelector('form').addEventListener('submit', (e) => {
 // Event listener for each card
 document.querySelector('body').addEventListener('click', (e) => {
     const cardDiv = e.target.closest('div .card');
+    // only if is pressed inside a card's div
     if (cardDiv !== null) {
         const employee = employeesArray.find(employee => employee.id.value === cardDiv.id);
         popModal(employee);
