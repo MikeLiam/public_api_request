@@ -32,23 +32,6 @@ async function fetchEmployees(url) {
 }
 
 /**
- * Create and append a new 'tag' element with the given attributes to a parent element passed.
- * @param {HTMLElement} parent element where appends the new element
- * @param {String} tag tag name for new element
- * @param {Array} attributes array of attributes with pair key/value for each one
- */
-function generateElement(parent, tag, attributes) {
-    const element = document.createElement(tag);
-    if (attributes !== null) {
-        attributes.forEach(attribute => {
-            element[attribute.key] = attribute.value;
-        });
-    }
-    parent.appendChild(element);
-    return element;
-}
-
-/**
  * Create a card with image, name, email and location of each employee and append them to 
  * #gallery div
  * @param {Array} data Array with 12 'employee' objects
@@ -56,248 +39,81 @@ function generateElement(parent, tag, attributes) {
 function generateCards(data) {
     data.map(employee => {
         employeesArray.push(employee);
-        // General card div for each employee
-        const card = generateElement(employeesDiv, 'div', [{
-                key: "id",
-                value: `${employee.id.value}`
-            },
-            {
-                key: "className",
-                value: "card"
-            }
-        ]);
-        // Image div container
-        const cardImage = generateElement(card, 'div', [{
-            key: "className",
-            value: "card-img-container"
-        }]);
-        // Image element
-        generateElement(cardImage, 'img', [{
-                key: "className",
-                value: "card-img"
-            },
-            {
-                key: "src",
-                value: `${employee.picture.thumbnail}`
-            },
-            {
-                key: "alt",
-                value: "profile picture"
-            },
-        ]);
-        // Info div container
-        const cardInfo = generateElement(card, 'div', [{
-            key: "className",
-            value: "card-info-container"
-        }]);
-        // Name element
-        generateElement(cardInfo, 'h3', [{
-                key: "id",
-                value: "name"
-            },
-            {
-                key: "className",
-                value: "card-name cap"
-            },
-            {
-                key: "textContent",
-                value: `${employee.name.first} ${employee.name.last}`
-            }
-        ]);
-        // Email element
-        generateElement(cardInfo, 'p', [{
-                key: "className",
-                value: "card-text"
-            },
-            {
-                key: "textContent",
-                value: `${employee.email}`
-            }
-        ]);
-        // Location element
-        generateElement(cardInfo, 'p', [{
-                key: "className",
-                value: "card-text cap"
-            },
-            {
-                key: "textContent",
-                value: `${employee.location.city}, ${employee.location.state}`
-            }
-        ]);
-    })
+        employeesDiv.innerHTML += `
+            <div class="card" id="${employee.id.value}">
+                <div class="card-img-container">
+                    <img class="card-img" src="${employee.picture.thumbnail}" alt="profile picture">
+                </div>
+                <div class="card-info-container">
+                    <h3 id="name" class="card-name cap">${employee.name.first} ${employee.name.last}</h3>
+                    <p class="card-text">${employee.email}</p>
+                    <p class="card-text cap">${employee.location.city}, ${employee.location.state}</p>
+                </div>
+            </div>`;
+    });
 }
 
 
 function popModal(employee) {
-    const modalContainer = generateElement(employeesDiv.parentNode, 'div', [{
-        key: "className",
-        value: "modal-container"
-    }]);
-    const modal = generateElement(modalContainer, 'div', [{
-        key: "className",
-        value: "modal"
-    }]);
-    generateElement(modal, 'button', [{
-            key: "type",
-            value: "button"
-        },
-        {
-            key: "className",
-            value: "modal-close-btn"
-        },
-        {
-            key: "id",
-            value: "modal-close-btn"
-        },
-        {
-            key: "innerHtml",
-            value: '<strong>X</strong>'
-        },
+    function modalEvents(button, employee) {
+        const gallery = document.querySelector('#gallery');
+        const card = document.getElementById(employee.id.value);
+        const action = button.id.split('-')[1];
 
-    ]);
-    const infoContainer = generateElement(modal, 'div', [{
-        key: "className",
-        value: "modal-info-container"
-    }]);
-    // Image element
-    generateElement(infoContainer, 'img', [{
-            key: "className",
-            value: "modal-img"
-        },
-        {
-            key: "src",
-            value: `${employee.picture.thumbnail}`
-        },
-        {
-            key: "alt",
-            value: "profile picture"
-        },
-    ]);
-    // Name element
-    generateElement(infoContainer, 'h3', [{
-            key: "id",
-            value: "name"
-        },
-        {
-            key: "className",
-            value: "modal-name cap"
-        },
-        {
-            key: "textContent",
-            value: `${employee.name.first} ${employee.name.last}`
-        }
-    ]);
-    // Email element
-    generateElement(infoContainer, 'p', [{
-            key: "className",
-            value: "modal-text"
-        },
-        {
-            key: "textContent",
-            value: `${employee.email}`
-        }
-    ]);
-    // Location element
-    generateElement(infoContainer, 'p', [{
-            key: "className",
-            value: "modal-text cap"
-        },
-        {
-            key: "textContent",
-            value: `${employee.location.city}`
-        }
-    ]);
-    generateElement(infoContainer, 'hr', null);
+        const selectActions = {
+            close: () => {
+                document.querySelector('div .modal-container').remove();
+            },
+            prev: () => {
 
-    generateElement(infoContainer, 'p', [{
-        key: "className",
-        value: "modal-text"
-    },
-    {
-        key: "textContent",
-        value: `${employee.cell}`
+                if(card.previousElementSibling !== null) {
+                    const prevEmployeeId = card.previousElementSibling.id;
+                    const prevEmployee = employeesArray.find(employee => employee.id.value === prevEmployeeId);
+                    document.querySelector('div .modal-container').remove();
+                    popModal(prevEmployee);
+                }
+            },
+            next: () => {
+                if (card.nextElementSibling !== null && card.nextElementSibling.className === 'card') {
+                    const nextEmployeeId = card.nextElementSibling.id;
+                    const nextEmployee = employeesArray.find(employee => employee.id.value === nextEmployeeId);
+                    document.querySelector('div .modal-container').remove();
+                    popModal(nextEmployee);
+                }
+            }
+        };
+
+        selectActions[action]();
     }
-]);
-generateElement(infoContainer, 'p', [{
-    key: "className",
-    value: "modal-text"
-},
-{
-    key: "textContent",
-    value: `${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}`
-}
-]);
-generateElement(infoContainer, 'p', [{
-    key: "className",
-    value: "modal-text"
-},
-{
-    key: "textContent",
-    value: `${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3-$2-$1")}`
-}
-]);
-    const modalBtn = generateElement(modalContainer, 'div', [{
-        key: "className",
-        value: "modal-bt-container"
-    }]);
-    generateElement(modalBtn, 'button', [{
-        key: "type",
-        value: "button"
-    },
-    {
-        key: "className",
-        value: "modal-prev"
-    },
-    {
-        key: "id",
-        value: "modal-prev"
-    },
-    {
-        key: "textContent",
-        value: 'Prev'
-    },
 
-]);
-generateElement(modalBtn, 'button', [{
-    key: "type",
-    value: "button"
-},
-{
-    key: "className",
-    value: "modal-next"
-},
-{
-    key: "id",
-    value: "modal-next"
-},
-{
-    key: "textContent",
-    value: 'Next'
-},
-
-]);
-}
-/* 
-<div class="modal-container">
-    <div class="modal">
-        <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-        <div class="modal-info-container">
-            <img class="modal-img" src="https://placehold.it/125x125" alt="profile picture">
-            <h3 id="name" class="modal-name cap">name</h3>
-            <p class="modal-text">email</p>
-            <p class="modal-text cap">city</p>
-            <hr>
-            <p class="modal-text">(555) 555-5555</p>
-            <p class="modal-text">123 Portland Ave., Portland, OR 97204</p>
-            <p class="modal-text">Birthday: 10/21/2015</p>
+    employeesDiv.innerHTML += `
+    <div class="modal-container">
+        <div class="modal">
+            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+            <div class="modal-info-container">
+                <img class="modal-img" src="${employee.picture.thumbnail}" alt="profile picture">
+                <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
+                <p class="modal-text">${employee.email}</p>
+                <p class="modal-text cap">${employee.location.city}</p>
+                <hr>
+                <p class="modal-text">${employee.cell}</p>
+                <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
+                <p class="modal-text">${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3-$2-$1")}</p>
+            </div>
         </div>
-    </div>
-    <div class="modal-btn-container">
-        <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-        <button type="button" id="modal-next" class="modal-next btn">Next</button>
-    </div>
-</div> */
+        <div class="modal-btn-container">
+            <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+            <button type="button" id="modal-next" class="modal-next btn">Next</button>
+        </div>
+    </div> `;
 
+    document.querySelector('div .modal-container').addEventListener('click', e => {
+        const target = e.target.closest('button');
+        if (target !== null) {
+            modalEvents(target, employee);
+        }
+    });
+}
 
 // Event listener for each card
 document.querySelector('body').addEventListener('click', (e) => {
