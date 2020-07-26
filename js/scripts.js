@@ -40,7 +40,7 @@ function generateCards(data) {
     data.map(employee => {
         employeesArray.push(employee);
         employeesDiv.innerHTML += `
-            <div class="card" id="${employee.id.value}">
+            <div class="card show" id="${employee.id.value}">
                 <div class="card-img-container">
                     <img class="card-img" src="${employee.picture.thumbnail}" alt="profile picture">
                 </div>
@@ -56,7 +56,7 @@ function generateCards(data) {
 
 function popModal(employee) {
     function modalEvents(button, employee) {
-        const gallery = document.querySelector('#gallery');
+        const cards = [...document.querySelectorAll('.card.show')];
         const card = document.getElementById(employee.id.value);
         const action = button.id.split('-')[1];
 
@@ -66,19 +66,28 @@ function popModal(employee) {
             },
             prev: () => {
 
-                if(card.previousElementSibling !== null) {
-                    const prevEmployeeId = card.previousElementSibling.id;
-                    const prevEmployee = employeesArray.find(employee => employee.id.value === prevEmployeeId);
-                    document.querySelector('div .modal-container').remove();
-                    popModal(prevEmployee);
+                if (cards.length > 1) {
+                    const index = cards.indexOf(card);
+                    if (index > 0) {
+                        const prevCard = cards[index - 1];
+                            const prevEmployeeId = prevCard.id;
+                            const prevEmployee = employeesArray.find(employee => employee.id.value === prevEmployeeId);
+                            document.querySelector('div .modal-container').remove();
+                            popModal(prevEmployee);
+                        
+                    }
                 }
             },
             next: () => {
-                if (card.nextElementSibling !== null && card.nextElementSibling.className === 'card') {
-                    const nextEmployeeId = card.nextElementSibling.id;
-                    const nextEmployee = employeesArray.find(employee => employee.id.value === nextEmployeeId);
-                    document.querySelector('div .modal-container').remove();
-                    popModal(nextEmployee);
+                if (cards.length > 1) {
+                    const index = cards.indexOf(card);
+                    if (index < cards.length - 1){
+                        const nextCard = cards[index + 1]
+                        const nextEmployeeId = nextCard.id;
+                        const nextEmployee = employeesArray.find(employee => employee.id.value === nextEmployeeId);
+                        document.querySelector('div .modal-container').remove();
+                        popModal(nextEmployee);
+                    }
                 }
             }
         };
@@ -115,14 +124,37 @@ function popModal(employee) {
     });
 }
 
+function search(input) {
+    const employeesCards = [...document.querySelectorAll('div .card')];
+
+    employeesCards.forEach( card => {
+        const name = card.querySelector('#name').textContent.toLowerCase();
+        if (name.includes(input.toLowerCase())) {
+            card.classList.remove('hide');
+            card.classList.add('show');
+        } else {
+            card.classList.remove('show');
+            card.classList.add('hide');
+        }
+    });
+}
+
+document.querySelector('div .search-container').innerHTML = `
+    <form action="#" method="get">
+    <input type="search" id="search-input" name="search-input" class="search-input" placeholder="Search...">
+    <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>`;
+
+document.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    search(e.target.elements['search-input'].value);
+})
+
 // Event listener for each card
 document.querySelector('body').addEventListener('click', (e) => {
-
     const cardDiv = e.target.closest('div .card');
     if (cardDiv !== null) {
-        console.log(cardDiv.id)
         const employee = employeesArray.find(employee => employee.id.value === cardDiv.id);
-        console.log(employee);
         popModal(employee);
     }
 }, true);
