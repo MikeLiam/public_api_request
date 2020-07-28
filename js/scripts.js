@@ -1,5 +1,5 @@
 const employeesDiv = document.querySelector('#gallery');
-const employeesUrl = "https://randomuser.me/api/?results=12&nat=us,es,fr,gb";
+const employeesUrl = "https://randomuser.me/api/?results=12&nat=us";
 let employeesArray = [];
 
 /**
