@@ -37,6 +37,7 @@ async function fetchEmployees(url) {
  * @param {Array} data Array with 12 'employee' objects
  */
 function generateCards(data) {
+    document.querySelector('div.loading').style.display = 'none';
     data.map(employee => {
         // Take this step to fill global employees array
         employeesArray.push(employee);
@@ -45,7 +46,7 @@ function generateCards(data) {
         cardContainer.id = employee.id.value;
         cardContainer.innerHTML += `
                 <div class="card-img-container">
-                    <img class="card-img" src="${employee.picture.thumbnail}" alt="profile picture">
+                    <img class="card-img" src="${employee.picture.medium}" alt="profile picture">
                 </div>
                 <div class="card-info-container">
                     <h3 id="name" class="card-name cap">${employee.name.first} ${employee.name.last}</h3>
@@ -123,7 +124,7 @@ function popModal(employee) {
     <div class="modal">
         <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
         <div class="modal-info-container">
-            <img class="modal-img" src="${employee.picture.thumbnail}" alt="profile picture">
+            <img class="modal-img" src="${employee.picture.large}" alt="profile picture">
             <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
             <p class="modal-text">${employee.email}</p>
             <p class="modal-text cap">${employee.location.city}</p>
@@ -205,10 +206,13 @@ document.querySelector('body').addEventListener('click', (e) => {
     }
 }, true);
 
-// Calling for retrieve employees data
+
+// // Calling for retrieve employees data
 fetchEmployees(employeesUrl)
     .then(generateCards)
     .catch(e => {
-        employeesDiv.innerHTML = '<h3>Please give it a new try in a few seconds...</h3>';
+        const message  = document.createElement('h3');
+        message.textContent = "Something went wrong, please wait or recharge the page."
+        employeesDiv.appendChild(message);
         console.log(e);
     });

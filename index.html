@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <title>Public API Requests</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link href="css/normalize.css" rel="stylesheet">
-        <link href="css/styles.css" rel="stylesheet">
-    </head>
-    <body>
 
-        <!-- =======================
+<head>
+    <title>Public API Requests</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="css/normalize.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- =======================
             Gallery container 
         ======================== -->
-        <header>
-            <div class="header-inner-container">
-                <div class="header-text-container">
-                    <h1>AWESOME STARTUP EMPLOYEE DIRECTORY</h1>
-                </div>
-                
-                <div class="search-container">
-                    <!-- ======================
+    <header>
+        <div class="header-inner-container">
+            <div class="header-text-container">
+                <h1>AWESOME STARTUP EMPLOYEE DIRECTORY</h1>
+            </div>
+
+            <div class="search-container">
+                <!-- ======================
                         Search markup: 
 
                         You can use the commented out markup below as a template
@@ -34,12 +36,19 @@
                             <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
                         </form>
                     ======================= -->
-                </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <div id="gallery" class="gallery">
-            <!-- ======================
+    <div id="gallery" class="gallery">
+        <div class="loading">
+            <span class="dots"></span>
+            <span class="dots"></span>
+            <span class="dots"></span>
+            <span class="dots"></span>
+            <span class="conection"></span>
+        </div>
+        <!-- ======================
                 Gallery markup: 
 
                 You can use the commented out markup below as a template
@@ -59,10 +68,10 @@
                         <p class="card-text cap">city, state</p>
                     </div>
                 </div>
-            ======================= -->              
-        </div>
+            ======================= -->
+    </div>
 
-        <!-- =======================
+    <!-- =======================
             Modal markup:
 
             You can use the commented out markup below as a template
@@ -94,8 +103,13 @@
                 </div>
             </div>
         ======================== -->
+    <!-- Background image Free License -->
+    <footer class="main-footer">
+        <a href="https://www.freepik.com/free-photos-vectors/background">Background vector created by rawpixel.com -
+            www.freepik.com</a>
+    </footer>
+    <!-- Add your JS here -->
+    <script src="js\scripts.js"></script>
+</body>
 
-        <!-- Add your JS here -->
-        <script src="js\scripts.js"></script>
-    </body>
 </html>
