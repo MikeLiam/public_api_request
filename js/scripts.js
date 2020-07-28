@@ -136,9 +136,9 @@ function popModal(employee) {
             <p class="modal-text">${employee.email}</p>
             <p class="modal-text cap">${employee.location.city}</p>
             <hr>
-            <p class="modal-text">${employee.cell}</p>
-            <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
-            <p class="modal-text">${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3-$2-$1")}</p>
+            <p class="modal-text">${employee.cell.replace(/(\([0-9]+\))\-([0-9]+)\-([0-9]+)/,"$1 $2-$3")}</p>
+            <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state} ${employee.location.postcode}</p>
+            <p class="modal-text">Birthday: ${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3/$2/$1")}</p>
         </div>
     </div>
     <div class="modal-btn-container">
@@ -147,6 +147,7 @@ function popModal(employee) {
     </div>`;
     // Append to global div
     employeesDiv.appendChild(modalContainer);
+    console.log(employee.cell)
     // Event listener for buttons inside modal
     document.querySelector('div .modal-container').addEventListener('click', e => {
         const target = e.target.closest('button');
