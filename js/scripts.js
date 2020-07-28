@@ -40,9 +40,10 @@ function generateCards(data) {
     data.map(employee => {
         // Take this step to fill global employees array
         employeesArray.push(employee);
-
-        employeesDiv.innerHTML += `
-            <div class="card show" id="${employee.id.value}">
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'card show';
+        cardContainer.id = employee.id.value;
+        cardContainer.innerHTML += `
                 <div class="card-img-container">
                     <img class="card-img" src="${employee.picture.thumbnail}" alt="profile picture">
                 </div>
@@ -50,8 +51,8 @@ function generateCards(data) {
                     <h3 id="name" class="card-name cap">${employee.name.first} ${employee.name.last}</h3>
                     <p class="card-text">${employee.email}</p>
                     <p class="card-text cap">${employee.location.city}, ${employee.location.state}</p>
-                </div>
-            </div>`;
+                </div>`;
+        employeesDiv.appendChild(cardContainer);
     });
 }
 
@@ -66,66 +67,79 @@ function popModal(employee) {
      * @param {Object} employee employee's object of card clicked
      */
     function modalEvents(button, employee) {
+        /**
+         * In function of condition '-1' / '1' retrieves previous/next 
+         * employee card from showed cards
+         * @param {Integer} condition to take index -1 or index +1
+         * @param {Array} cards showed cards in page
+         */
+        function modalAction(condition, cards) {
+            // Only in case that are more than one employee
+            if (cards.length > 1) {
+                const index = cards.indexOf(card);
+                // Not if is the first employee card and want previous 
+                // or last employee card and want next
+                if ((index !== 0 && condition === -1) || (index !== cards.length - 1 && condition === 1)) {
+                    const newCard = cards[index + condition];
+                    // To retrieve information from employees array
+                    const newEmployeeId = newCard.id;
+                    const newEmployee = employeesArray.find(employee => employee.id.value === newEmployeeId);
+                    // Remove current employee's modal
+                    document.querySelector('div .modal-container').remove();
+                    // Show new modal with prev employee
+                    popModal(newEmployee);
+                }
+            }
+        }
+
         // Cards array that have show class in order to adapt functionality for next/prev modal button
         //  in case that a search was realized
         const cards = [...document.querySelectorAll('.card.show')];
         const card = document.getElementById(employee.id.value);
         const action = button.id.split('-')[1];
-
+        // Functions array waiting for actions from modal's buttons.
         const selectActions = {
+            // Modal Close button
             close: () => {
                 document.querySelector('div .modal-container').remove();
             },
+            // Modal prev employee button
             prev: () => {
-                if (cards.length > 1) {
-                    const index = cards.indexOf(card);
-                    if (index > 0) {
-                        const prevCard = cards[index - 1];
-                            const prevEmployeeId = prevCard.id;
-                            const prevEmployee = employeesArray.find(employee => employee.id.value === prevEmployeeId);
-                            document.querySelector('div .modal-container').remove();
-                            popModal(prevEmployee);
-                    }
-                }
+                modalAction(-1, cards);
             },
+            // Modal next employee button
             next: () => {
-                if (cards.length > 1) {
-                    const index = cards.indexOf(card);
-                    if (index < cards.length - 1){
-                        const nextCard = cards[index + 1]
-                        const nextEmployeeId = nextCard.id;
-                        const nextEmployee = employeesArray.find(employee => employee.id.value === nextEmployeeId);
-                        document.querySelector('div .modal-container').remove();
-                        popModal(nextEmployee);
-                    }
-                }
+                modalAction(1, cards);
             }
         };
 
         selectActions[action]();
     }
-
-    employeesDiv.innerHTML += `
-    <div class="modal-container">
-        <div class="modal">
-            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-            <div class="modal-info-container">
-                <img class="modal-img" src="${employee.picture.thumbnail}" alt="profile picture">
-                <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
-                <p class="modal-text">${employee.email}</p>
-                <p class="modal-text cap">${employee.location.city}</p>
-                <hr>
-                <p class="modal-text">${employee.cell}</p>
-                <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
-                <p class="modal-text">${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3-$2-$1")}</p>
-            </div>
+    // Create div container for modal
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-container';
+    // Birthday date permutation inside with Array.split + String.replace
+    modalContainer.innerHTML += `
+    <div class="modal">
+        <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+        <div class="modal-info-container">
+            <img class="modal-img" src="${employee.picture.thumbnail}" alt="profile picture">
+            <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
+            <p class="modal-text">${employee.email}</p>
+            <p class="modal-text cap">${employee.location.city}</p>
+            <hr>
+            <p class="modal-text">${employee.cell}</p>
+            <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state}, ${employee.location.postcode}</p>
+            <p class="modal-text">${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3-$2-$1")}</p>
         </div>
-        <div class="modal-btn-container">
-            <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-            <button type="button" id="modal-next" class="modal-next btn">Next</button>
-        </div>
-    </div> `;
-
+    </div>
+    <div class="modal-btn-container">
+        <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+        <button type="button" id="modal-next" class="modal-next btn">Next</button>
+    </div>`;
+    // Append to global div
+    employeesDiv.appendChild(modalContainer);
+    // Event listener for buttons inside modal
     document.querySelector('div .modal-container').addEventListener('click', e => {
         const target = e.target.closest('button');
         if (target !== null) {
@@ -143,7 +157,7 @@ function search(input) {
     // Get all cards in an Array to better management
     const employeesCards = [...document.querySelectorAll('div .card')];
 
-    employeesCards.forEach( card => {
+    employeesCards.forEach(card => {
         const name = card.querySelector('#name').textContent.toLowerCase();
         // Check if input it's included in name employee
         if (name.includes(input.toLowerCase())) {
@@ -159,11 +173,17 @@ function search(input) {
 }
 
 // Creating search form in '.search-container' div
-document.querySelector('div .search-container').innerHTML = `
-    <form action="#" method="get">
-    <input type="search" id="search-input" name="search-input" class="search-input" placeholder="Search...">
-    <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-    </form>`;
+const form = document.createElement('form');
+form.setAttribute('action', '#');
+form.setAttribute('method', 'get');
+
+form.innerHTML = `
+<form action="#" method="get">
+<input type="search" id="search-input" name="search-input" class="search-input" placeholder="Search...">
+<input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+</form>`;
+
+document.querySelector('div .search-container').appendChild(form);
 
 /**
  * Event listener for submit form 
