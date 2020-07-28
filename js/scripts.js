@@ -23,9 +23,9 @@ async function fetchEmployees(url) {
     // Try/catch module for manage errors
     try {
         return await fetch(url)
-            .then(checkStatus)
-            .then(data => data.json())
-            .then(json => json.results);
+        .then(checkStatus)
+        .then(data => data.json())
+        .then(json => json.results);
     } catch (error) {
         throw error;
     }
@@ -37,10 +37,17 @@ async function fetchEmployees(url) {
  * @param {Array} data Array with 12 'employee' objects
  */
 function generateCards(data) {
+    // Hide loading div
     document.querySelector('div.loading').style.display = 'none';
-    data.map(employee => {
+    // If have been some attempts and display error message, hide it
+    if (document.querySelector('#errorMessage') !== null) {
+        document.querySelector('#errorMessage').style.display = 'none';
+    }
+    // for every employee object
+    data.forEach(employee => {
         // Take this step to fill global employees array
         employeesArray.push(employee);
+        // Create card for employee
         const cardContainer = document.createElement('div');
         cardContainer.className = 'card show';
         cardContainer.id = employee.id.value;
@@ -179,10 +186,10 @@ form.setAttribute('action', '#');
 form.setAttribute('method', 'get');
 
 form.innerHTML = `
-<form action="#" method="get">
-<input type="search" id="search-input" name="search-input" class="search-input" placeholder="Search...">
-<input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-</form>`;
+    <form action="#" method="get">
+    <input type="search" id="search-input" name="search-input" class="search-input" placeholder="Search...">
+    <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>`;
 
 document.querySelector('div .search-container').appendChild(form);
 
@@ -207,12 +214,37 @@ document.querySelector('body').addEventListener('click', (e) => {
 }, true);
 
 
-// // Calling for retrieve employees data
-fetchEmployees(employeesUrl)
-    .then(generateCards)
-    .catch(e => {
-        const message  = document.createElement('h3');
-        message.textContent = "Something went wrong, please wait or recharge the page."
-        employeesDiv.appendChild(message);
-        console.log(e);
-    });
+/**
+ * Fetch employees function with a retry fetch module just in case 
+ * there's an error 'Failed to fetch' Commonly appears with randomuser api
+ * and only 10 times at max
+ * @param {String} url api url to fetch from
+ * @param {Integer} attempts times of tries to fetch
+ * @param {Boolean} retry false by default and true if need to retry to fetch
+ */
+function retryFetch (url, attempts, retry = false){
+    fetchEmployees(url)
+        .then(generateCards.bind())
+        .catch(e => {
+            attempts++;
+            let message = null;
+            if (retry === false) {
+                // Create <h3> error message element and append.
+                message  = document.createElement('h3');
+                message.id = 'errorMessage'; 
+                message.textContent = "Something went wrong, please wait or recharge the page."
+                document.querySelector('body').insertBefore(message, employeesDiv);
+            } else {
+                // Looking for <h3> error message
+                message = document.querySelector('#errorMessage');
+            }
+            message.style.display = 'inherit';
+            // Max 10 attempts in order to doesnt collapse browser
+             if( e.message === 'Failed to fetch' && attempts < 10) {
+                retryFetch(url,attempts, true);
+            }
+            console.log(e);
+        });
+}
+// Call to fetch employees info
+retryFetch(employeesUrl, 0);
