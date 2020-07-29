@@ -237,10 +237,18 @@ Modal
     right: 15px;
     cursor: pointer;
     color: rgba(255, 255, 255, 0.9);
-    background: rgba(11, 32, 78, 0.7);
+    background: rgba(11, 32, 78, 0.9);
     outline: none;
-    border-radius: 0.25em;
-    border: 1px solid rgba(50, 50, 50, 0.3);
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+.modal-close-btn:hover {
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0px 0px 10px 5px #3142db;
+    color: #3142db;
+    transition: all 0.4s ease-out;
 }
 
 .modal-img {

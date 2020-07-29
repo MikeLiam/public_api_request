@@ -1,13 +1,15 @@
 const employeesDiv = document.querySelector('#gallery');
 const employeesUrl = "https://randomuser.me/api/?results=12&nat=us";
+const statesUrl = "js/states.json"
 let employeesArray = [];
+let statesObject = {};
 
 /**
  * Make request to an url given checking correct status of response and errors 
  * and returning an Array of objects 'json.results' from response formated to JSON.
  * @param {String} url 
  */
-async function fetchEmployees(url) {
+async function fetchData(url) {
     /**
      * Check if response's property 'ok' is true to resolve with response object 
      * or reject with error contained in response's property 'statusText'
@@ -127,6 +129,8 @@ function popModal(employee) {
     const modalContainer = document.createElement('div');
     modalContainer.className = 'modal-container';
     // Birthday date permutation inside with Array.split + String.replace
+    const state = statesObject[employee.location.state];
+
     modalContainer.innerHTML += `
     <div class="modal">
         <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
@@ -137,8 +141,8 @@ function popModal(employee) {
             <p class="modal-text cap">${employee.location.city}</p>
             <hr>
             <p class="modal-text">${employee.cell.replace(/(\([0-9]+\))\-([0-9]+)\-([0-9]+)/,"$1 $2-$3")}</p>
-            <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${employee.location.state} ${employee.location.postcode}</p>
-            <p class="modal-text">Birthday: ${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$3/$2/$1")}</p>
+            <p class="modal-text">${employee.location.street.number} ${employee.location.street.name}, ${state} ${employee.location.postcode}</p>
+            <p class="modal-text">Birthday: ${employee.dob.date.split('T')[0].replace(/([0-9]+)\-([0-9]+)\-([0-9]+)/,"$2/$3/$1")}</p>
         </div>
     </div>
     <div class="modal-btn-container">
@@ -147,7 +151,6 @@ function popModal(employee) {
     </div>`;
     // Append to global div
     employeesDiv.appendChild(modalContainer);
-    console.log(employee.cell)
     // Event listener for buttons inside modal
     document.querySelector('div .modal-container').addEventListener('click', e => {
         const target = e.target.closest('button');
@@ -214,6 +217,20 @@ document.querySelector('body').addEventListener('click', (e) => {
     }
 }, true);
 
+/**
+ * Get states object from json file
+ * @param {String} url url of json file
+ */
+function fetchStates (url) {
+    fetchData(url)
+        .then(data => {
+            statesObject = data;
+        })
+        .catch(e => {
+            console.log(e);
+        })
+}
+
 
 /**
  * Fetch employees function with a retry fetch module just in case 
@@ -224,8 +241,8 @@ document.querySelector('body').addEventListener('click', (e) => {
  * @param {Boolean} retry false by default and true if need to retry to fetch
  */
 function retryFetch (url, attempts, retry = false){
-    fetchEmployees(url)
-        .then(generateCards.bind())
+    fetchData(url)
+        .then(generateCards)
         .catch(e => {
             attempts++;
             let message = null;
@@ -249,3 +266,5 @@ function retryFetch (url, attempts, retry = false){
 }
 // Call to fetch employees info
 retryFetch(employeesUrl, 0);
+// Call to fetch states info
+fetchStates(statesUrl);

@@ -17,3 +17,4 @@
 * Search form adapted to theme.
 * Loading span while fetching or error handling simulating a network.
 * Error message to warn of a failed fetching.
+* US States Acronyms from json file for info at modal employee.
